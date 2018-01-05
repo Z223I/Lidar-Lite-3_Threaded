@@ -1,13 +1,5 @@
-#
-# 9/18/2017
-# 0.0.3 SPECIAL LIDAR working
-#
-# September 27, 2017
-# 0.1.5 Moving average working
-#
-# September 27, 2017
-# 0.1.6 Minor changes
-#
+# This is a simple test of the Lidar.  It isn't threaded.
+
 
 from lidar_lite import Lidar_Lite
 import time
@@ -23,7 +15,7 @@ if connected < -1:
   timpe.sleep(1)
   connected = lidar.connect(1)
 
-
+# Found it necessary to try connect twice ocasionally.
 if connected < -1:
   print "Still not connected!"
 else:
@@ -51,7 +43,7 @@ try:
     average = sumOfMeasurements / len( measurements )
     print 'RA: {:.2f}'.format(average)
 
-
+# Haven't worked on Velocity.
     velocityMetersPerSecond = lidar.getVelocity()
     velocityInchesPerSecond = velocityMetersPerSecond / 39.3700787
     velocityInchesPerMinute = velocityInchesPerSecond * 60
