@@ -5,7 +5,7 @@ import time
 from threading   import Thread
 from lidar_lite  import Lidar_Lite
 from collections import deque
-
+import Queue
 
 
 
@@ -48,7 +48,7 @@ class LidarLiteChild(Lidar_Lite):
   def terminate(self):
     self._running = False
   
-  def run(self):
+  def run(self, _qDistance):
     xRange = []
     maxItemsInQueue = 10
     measurements = deque(xRange, maxItemsInQueue)
@@ -67,7 +67,9 @@ class LidarLiteChild(Lidar_Lite):
       measurements.appendleft( distanceInch )
       sumOfMeasurements = sum( measurements )
       average = sumOfMeasurements / len( measurements )
-      print 'Running average Inches: {:.2f}'.format(average)
+
+      #print 'Running average Inches: {:.2f}'.format(average)
+      _qDistance.put(average)
 
 
 #    velocityMetersPerSecond = lidar.getVelocity()
@@ -80,29 +82,30 @@ class LidarLiteChild(Lidar_Lite):
 
 
 
+if __name__ == "__main__":
 
-#Create Class
-lidarLiteChild = LidarLiteChild()
+  #Create Class
+  lidarLiteChild = LidarLiteChild()
 
-initOk = lidarLiteChild.init()
+  initOk = lidarLiteChild.init()
 
-if initOk:
+  if initOk:
 
-  #Create Thread
-  lidarLiteChildThread = Thread(target=lidarLiteChild.run)
+    qDistance = Queue.Queue(maxsize=0)
 
-  #Start Thread
-  lidarLiteChildThread.start()
+    #Create Thread
+    lidarLiteChildThread = Thread(target=lidarLiteChild.run, args=(qDistance,))
 
-  while True:
-    command = raw_input("Command: ")
-    cmd = command[0]
-    if cmd == 'q' or cmd == 'Q':
-      break
+    #Start Thread
+    lidarLiteChildThread.start()
 
-  lidarLiteChild.terminate()
-  print "Thread finished"
+    while True:
+      distance = qDistance.get()
+      print "Distance: ", distance
 
-else:
-  print "Shutting down"
+    lidarLiteChild.terminate()
+    print "Thread finished"
+
+  else:
+    print "Shutting down"
 
