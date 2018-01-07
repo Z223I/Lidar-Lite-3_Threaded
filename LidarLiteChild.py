@@ -94,7 +94,11 @@ if initOk:
   #Start Thread
   lidarLiteChildThread.start()
 
-  time.sleep(30)
+  while True:
+    command = raw_input("Command: ")
+    cmd = command[0]
+    if cmd == 'q' or cmd == 'Q':
+      break
 
   lidarLiteChild.terminate()
   print "Thread finished"
