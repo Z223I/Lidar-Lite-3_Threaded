@@ -20,7 +20,7 @@ class LidarLiteChild(Lidar_Lite):
 
   def init(self):
 
-    connected = lidarLiteChild.connect(1)
+    connected = self.connect(1)
 
     #print "Connected = ", connected
 
@@ -28,9 +28,9 @@ class LidarLiteChild(Lidar_Lite):
       print "Lidar connected"
 
       try:
-        lidarLiteChild.writeAndWait( 0x04, 0x0A )
-        lidarLiteChild.writeAndWait( 0x11, 0x0A ) # Distance measurements per request.  Using 10.
-        lidarLiteChild.writeAndWait( 0x1C, 0x60 ) # Reduce sensitivity and errors per manual.
+        self.writeAndWait( 0x04, 0x0A )
+        self.writeAndWait( 0x11, 0x0A ) # Distance measurements per request.  Using 10.
+        self.writeAndWait( 0x1C, 0x60 ) # Reduce sensitivity and errors per manual.
       except:
         print "Lidar not available."
         print "Using simulated data."
