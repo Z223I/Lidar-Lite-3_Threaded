@@ -14,7 +14,7 @@ class LidarLiteChild(Lidar_Lite):
 
   def __init__(self):
     super( LidarLiteChild, self ).__init__()
-    print ("LidarLiteChild constructor")
+#    print ("LidarLiteChild constructor")
     self._running = True
     self.simulatedData = False
 
@@ -25,7 +25,8 @@ class LidarLiteChild(Lidar_Lite):
     #print "Connected = ", connected
 
     if connected >= 0:  #TODO Is this value correct???
-      print ("Lidar connected")
+#      print ("Lidar connected")
+      pass
 
       try:
         self.writeAndWait( 0x04, 0x0A )
