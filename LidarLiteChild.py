@@ -1,3 +1,4 @@
+
 # This is the threaded version.
 
 
@@ -6,6 +7,7 @@ from threading   import Thread
 from lidar_lite  import Lidar_Lite
 from collections import deque
 import queue
+import pdb
 
 
 
@@ -20,13 +22,13 @@ class LidarLiteChild(Lidar_Lite):
 
   def init(self):
 
+#    pdb.set_trace()
     connected = self.connect(1)
 
-    #print "Connected = ", connected
+    print("Connected = ", connected)
 
-    if connected >= 0:  #TODO Is this value correct???
-#      print ("Lidar connected")
-      pass
+    if connected >= 0:
+      print ("Lidar connected")
 
       try:
         self.writeAndWait( 0x04, 0x0A )
@@ -92,6 +94,74 @@ class LidarLiteChild(Lidar_Lite):
 
       time.sleep(2.5)
 
+#  def write_(self, register, value):
+#      self.writeAndWait(register, value)
+
+  def write_ext(self, register, value, lidarliteAddress):
+      self.address = lidarliteAddress
+      self.writeAndWait(register, value)
+
+
+  """------------------------------------------------------------------------------
+  Configure
+
+  Selects one of several preset configurations.
+
+  Parameters
+  ------------------------------------------------------------------------------
+  configuration:  Default 0.
+    0: Default mode, balanced performance.
+    1: Short range, high speed. Uses 0x1d maximum acquisition count.
+    2: Default range, higher speed short range. Turns on quick termination
+        detection for faster measurements at short range (with decreased
+        accuracy)
+    3: Maximum range. Uses 0xff maximum acquisition count.
+    4: High sensitivity detection. Overrides default valid measurement detection
+        algorithm, and uses a threshold value for high sensitivity and noise.
+    5: Low sensitivity detection. Overrides default valid measurement detection
+        algorithm, and uses a threshold value for low sensitivity and noise.
+  lidarliteAddress: Default 0x62. Fill in new address here if changed. See
+    operating manual for instructions.
+  ------------------------------------------------------------------------------"""
+
+  def configure(self, configuration, lidarliteAddress):
+
+    if configuration == 0:
+      # Default mode, balanced performance
+      self.write_ext(0x02,0x80,lidarliteAddress); # Default
+      self.write_ext(0x04,0x08,lidarliteAddress); # Default
+      self.write_ext(0x1c,0x00,lidarliteAddress); # Default
+    elif configuration == 1:
+      # Short range, high speed
+      self.write_ext(0x02,0x1d,lidarliteAddress);
+      self.write_ext(0x04,0x08,lidarliteAddress); # Default
+      self.write_ext(0x1c,0x00,lidarliteAddress); # Default
+
+    elif configuration == 2:
+      # Default range, higher speed short range
+      self.write_ext(0x02,0x80,lidarliteAddress); # Default
+      self.write_ext(0x04,0x00,lidarliteAddress);
+      self.write_ext(0x1c,0x00,lidarliteAddress); # Default
+
+    elif configuration == 3:
+      # Maximum range
+      self.write_ext(0x02,0xff,lidarliteAddress);
+      self.write_ext(0x04,0x08,lidarliteAddress); # Default
+      self.write_ext(0x1c,0x00,lidarliteAddress); # Default
+
+    elif configuration ==4:
+      # High sensitivity detection, high erroneous measurements
+      self.write_ext(0x02,0x80,lidarliteAddress); # Default
+      self.write_ext(0x04,0x08,lidarliteAddress); # Default
+      self.write_ext(0x1c,0x80,lidarliteAddress);
+
+    elif configuration == 5:
+      # Low sensitivity detection, low erroneous measurements
+      self.write_ext(0x02,0x80,lidarliteAddress); # Default
+      self.write_ext(0x04,0x08,lidarliteAddress); # Default
+      self.write_ext(0x1c,0xb0,lidarliteAddress);
+
+# End configure
 
 
 if __name__ == "__main__":
@@ -102,6 +172,10 @@ if __name__ == "__main__":
   initOk = lidarLiteChild.init()
 
   if initOk:
+
+    # run through all the configurations
+    for config in range(6):
+        lidarLiteChild.configure(config, 0x62)
 
     qDistance = queue.Queue(maxsize=0)
 
